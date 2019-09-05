@@ -1,0 +1,125 @@
+---
+title: "886_assignment 2_Q2"
+author: '44414161'
+date: "05/09/2019"
+output:
+  word_document: default
+  html_document: default
+---
+### Qestion 2
+
+```{r}
+Ex<-c(15518,19428,21594,21890,19174,15775,11414,6993,3276,1096,201)
+ax<-c(65,144,219,378,465,557,685,644,471,217,67)
+ex<-c(73.9,134.6,223.9,346.3,468.1,600.2,675.5,637.4,458.7,240.6,61.4)
+qx<-ex/Ex
+var<-ex*(1-qx)
+zx<-(ax-ex)/sqrt(var)
+```
+
+
+#### Chi Square Test
+$$\sum_{allages}{z_x^2}$$
+
+we can use chi square test to check adherence of data. The degree of freedom is 10.
+The chi square test statistic is smaller than 95th percentile of the chi square distribution, the null htpothesis is not rejected and adherence to data is good. 
+
+```{r}
+chiStat<-sum(zx^2)
+chiStat
+df1<-length(zx-1)
+qchisq(0.95,df1)
+
+
+```
+
+Howerver, this test does not detect the case where there are a few large diviation offset by small deviations.
+
+
+#### Standardised Deviations Test
+The standardised deviation test deviation test statistic is :
+$$\sum_{allages}\frac{(A-E)^2}E$$
+The degree of freedom is 3. The test statitic is smaller than $\chi^2_n(0.95)$, so the adherence to data is good.
+
+
+```{r}
+z<-data.frame(zx)
+
+A1<-length(z[z$zx<(-1),])
+A2<-length(z[z$zx>(-1)&z$zx<0,])
+A3<-length(z[z$zx>0&z$zx<1,])
+A4<-length(z[z$zx>1,])
+A<-c(A1,A2,A3,A4)
+
+E1<-pnorm(-1,0,1)*11
+E2<-(pnorm(0,0,1)-pnorm(-1,0,1))*11
+E3<-(pnorm(1,0,1)-pnorm(0,0,1))*11
+E4<-(1-pnorm(1,0,1))*11
+E<-c(E1,E2,E3,E4)
+
+sd<-sum((A-E)^2/E)
+sd
+qchisq(0.95,3)
+```
+
+#### Cumulative Deviation Test
+The test statistic is:
+$$\frac{\sum_x(d_x-Exq_x)}{\sqrt{\sum_x{Exqx(1-q_x)}}}$$
+And it is smaller than the 1.96, it is approximately normally distributed and the adherence to data is satisfactory. 
+```{r}
+cd<-sum(ax-ex)/sqrt(sum(var))
+cd
+```
+
+#### Sign Test
+Under our assumption, there should be equal numbers of positive and negative deviations so we should do further signs test.
+The signs test statistic is the number of positive $z_x$'s.It is 6 which is greater than k, so the gradusted estimates are not too low and vice versa compared to the data.
+```{r}
+k=qbinom(0.025,11,0.5)
+k
+n1=length(z[z$zx>0,])
+n1
+```
+
+```{r}
+n=length(zx)
+s=0
+cdf<-numeric(n)
+
+for(i in 1:n){
+  s=s+choose(n,i)*0.5^11
+  cdf[i]<-s
+}
+k<-c(1:11)
+data.frame(k,cdf)
+
+```
+
+#### Grouping of Signs Test
+The grouping of the signs test statistic is the number of distinct roups of positive $z_x$'s. It is 4 which is bigger than k so the adherence to data is good.
+
+```{r}
+n2=length(z[z$zx<0,])
+s1=0
+cdf<-numeric(n1)
+
+for(i in 1:n1){
+  s1<-s1+choose(n1-1,i-1)*choose(n2+1,i)/choose(n,n1)
+  cdf[i]<-s1
+}
+k<-c(1:6)
+data.frame(k,cdf)
+```
+
+##### Serial Correlation Test
+The test statistic is smaller than 1.64 so the adherence to the data is good.
+```{r}
+z_1<-z[-n,]
+z_2<-z[-1,]
+zbar1<-sum(z_1)/(n-1)
+zbar2<-sum(z_2)/(n-1)
+sc<-sum((z_1-zbar1)*(z_2-zbar2))*sqrt(n-1)/sqrt(sum((z_1-zbar1)^2)*sum((z_2-zbar2)^2))
+sc  #< 1.64
+```
+
+In conclusion, the fidelity to data is good.

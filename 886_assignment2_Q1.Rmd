@@ -1,0 +1,44 @@
+---
+title: "886_assignment 2_Q1"
+author: '44414161'
+date: "05/09/2019"
+output:
+  word_document: default
+  html_document: default
+---
+### Qestion 1 
+
+```{r}
+policydate_G="1995-10-29"
+policydate_J="1996-03-06"
+policydate=c(policydate_G,policydate_J)
+
+deathdate_G="1996-04-21"
+deathdate_J="1997-02-17"
+deathdate=c(deathdate_G,deathdate_J)
+
+calc_age <- function(birthDate, refDate = Sys.Date()) {
+  require(lubridate)
+  period <- as.period(new_interval(birthDate, refDate),
+                      unit = "day")
+  period$day
+}
+
+calc_age(policydate,deathdate)
+```
+
+```{r}
+d30<-2
+initial_E30<-sum(1+0+1+1+1+1+0+1+1+1)
+q30<-d30/initial_E30
+q30
+```
+
+```{r}
+central_E30<-sum(1+0+1+1+1+0+calc_age(policydate,deathdate)[1]/365.25+1+1+calc_age(policydate,deathdate)[2]/365.25)
+mu30<-d30/central_E30
+mu30
+q30_MLE<-1-exp(-mu30)
+q30_MLE
+```
+
